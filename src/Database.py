@@ -22,39 +22,45 @@ class Database:
     #creates all tables in the database
     def createTables(self):
         create_statement = """ 
-            CREATE TABLE IF NOT EXISTS User(
+            CREATE TABLE IF NOT EXISTS Users(
                 username varchar(16),
                 firstname varchar(16),
                 lastname varchar(16),
                 PRIMARY KEY (username)
             );
             ALTER TABLE User AUTO_INCREMENT = 1;
-            CREATE TABLE IF NOT EXISTS Movie(
+            CREATE TABLE IF NOT EXISTS Movies(
                 imdbID int,
                 name varchar(16),
                 primaryGenre varchar(16),
-                secondaryGenre varchar(16),
                 PRIMARY KEY (imdbID)
             );
             ALTER TABLE Movie AUTO_INCREMENT = 1;
-            CREATE TABLE IF NOT EXISTS UserMovie(
+            CREATE TABLE IF NOT EXISTS UsersMovies(
                 username varchar(16),
                 movieID int,
-                FOREIGN KEY (username) REFERENCES User(username),
-                FOREIGN KEY (movieID) REFERENCES Movie(imdbID)
+                FOREIGN KEY (username) 
+                    REFERENCES User(username)
+                    ON DELETE CASCADE,
+                FOREIGN KEY (movieID) 
+                    REFERENCES Movie(imdbID)
+                    ON DELETE CASCADE
+                PRIMARY KEY (username, movieID)
             );"""
         self.cur.execute(create_statement)
 
     #drop all tables in the database
     def deleteTables(self):
         delete_statement = """
-            DROP TABLE IF EXISTS UserMovie;
-            DROP TABLE IF EXISTS User;
-            DROP TABLE IF EXISTS Movie;"""
+            DROP TABLE IF EXISTS UsersMovies;
+            DROP TABLE IF EXISTS Users;
+            DROP TABLE IF EXISTS Movies;"""
 
         self.cur.execute(delete_statement)
 
     #executes and commits a given sql statement
     def exe(self, statement):
         self.cur.execute(statement)
+        result = self.cur.fetchall()
         self.cur.execute("COMMIT;")
+        return result

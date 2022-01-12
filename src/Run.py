@@ -1,28 +1,21 @@
 from Database import Database
-
-from imdb import IMDb
+from Movies import Movies
+from Users import Users
 
 def main():
     #database instance
     db = Database()
+    movies = Movies()
+    users = Users()
 
-    # create an instance of the IMDb class
-    ia = IMDb()
-
-    test(ia)
+    # movies.quickSearch()
+    # users.addUser(db, "example", "bob", "bob")
+    users.newUser(db)
 
     del db
+    del movies
+    del users
 
-def test(ia):
-    userStr = input("Movie Name: ")
-
-    movies = ia.search_movie(userStr)
-    id = movies[0].movieID
-
-    series = ia.get_movie(id)
-    genre = series.data['genres']
-
-    print(genre)
 
 if __name__ == "__main__":
     main()
