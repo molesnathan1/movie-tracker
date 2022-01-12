@@ -12,7 +12,7 @@ class Database:
                      db="MovieTracker")
 
         self.cur = self.db.cursor()
-        self.deleteTables()
+        # self.deleteTables()
         self.createTables()
 
     #decunstructor that closes the connection to the database
@@ -24,6 +24,7 @@ class Database:
         create_statement = """ 
             CREATE TABLE IF NOT EXISTS Users(
                 username varchar(16),
+                password varchar (16),
                 firstname varchar(16),
                 lastname varchar(16),
                 PRIMARY KEY (username)
@@ -45,7 +46,6 @@ class Database:
                 FOREIGN KEY (movieID) 
                     REFERENCES Movie(imdbID)
                     ON DELETE CASCADE
-                PRIMARY KEY (username, movieID)
             );"""
         self.cur.execute(create_statement)
 

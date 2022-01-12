@@ -7,7 +7,7 @@ class Movies:
         self.ia = IMDb()
 
     def find(self):
-        userStr = input("search movie: ")
+        userStr = input("\nsearch movie: ")
         movies = self.ia.search_movie(userStr)
 
         for i in range(0,10):
@@ -16,16 +16,16 @@ class Movies:
         return movies 
 
     def selectMovie(self, movies):
-        userChoice = input("enter the number of the wanted movie: ")
+        userChoice = input("select a movie: ")
         movie = None
         if 1 <= int(userChoice) <= 10:
             movie = movies[int(userChoice) - 1]
         else:
-            print("no movie was selected")
+            print("NO MOVIE SELECTED: exiting")
         return movie
 
     def quickFind(self):
-        userStr = input("quick search movie: ")
+        userStr = input("\nquick search movie: ")
         movies = self.ia.search_movie(userStr)
         return movies[0]
 
