@@ -21,33 +21,10 @@ class Database:
     
     #creates all tables in the database
     def createTables(self):
-        create_statement = """ 
-            CREATE TABLE IF NOT EXISTS Users(
-                username varchar(16),
-                password varchar (16),
-                firstname varchar(16),
-                lastname varchar(16),
-                PRIMARY KEY (username)
-            );
-            ALTER TABLE User AUTO_INCREMENT = 1;
-            CREATE TABLE IF NOT EXISTS Movies(
-                imdbID int,
-                name varchar(16),
-                primaryGenre varchar(16),
-                PRIMARY KEY (imdbID)
-            );
-            ALTER TABLE Movie AUTO_INCREMENT = 1;
-            CREATE TABLE IF NOT EXISTS UsersMovies(
-                username varchar(16),
-                movieID int,
-                FOREIGN KEY (username) 
-                    REFERENCES User(username)
-                    ON DELETE CASCADE,
-                FOREIGN KEY (movieID) 
-                    REFERENCES Movie(imdbID)
-                    ON DELETE CASCADE
-            );"""
-        self.cur.execute(create_statement)
+        sql_file = open("schema.sql", "r")
+        sql_string = sql_file.read()
+        sql_file.close()
+        self.cur.execute(sql_string)
 
     #drop all tables in the database
     def deleteTables(self):

@@ -55,6 +55,8 @@ class Users:
 
         if username:
             password = input("password: ")
+            if password == "":
+                return info
             firstname = input("firstname: ")
             lastname = input("lastname: ")
             info = [username, password, firstname, lastname]
@@ -67,12 +69,12 @@ class Users:
 
     #creates a new user
     def newUser(self, db):
+        info = []
         info = self.getUserInfo(db)
         if info:
             self.addUser(db, info[0], info[1], info[2], info[3])
-            return 1
 
-        return 0
+        return info
 
     #removes a user from the database
     def removeUser(self, db, username):
