@@ -1,3 +1,0 @@
-IMDbPY
-mysqlclient
-MySQL-python

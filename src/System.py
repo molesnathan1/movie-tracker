@@ -8,7 +8,6 @@ class System:
         self.db = Database()
         self.movies = Movies(self.db)
         self.user = User(self.db)
-        self.app = App()
 
     def __del__(self):
         del self.user
