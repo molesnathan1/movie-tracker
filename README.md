@@ -17,6 +17,7 @@ Run the following command in the movie-tracker directory:
 python3 src/Main.py
 ```
 
+
 Compile as Application:
 If you want to compile into application run the following in the movie-tracker directory:
 ```
