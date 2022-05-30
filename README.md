@@ -13,8 +13,12 @@ If you want to compile the project into an application you need to install pyins
 
 # How To Run
 Run the following command in the movie-tracker directory: 
-- python3 src/Main.py
+```
+python3 src/Main.py
+```
 
 If you want to compile into application run the following in the movie-tracker directory:
-- pyinstaller --onefile --noconsole --name=movie-tracker src/Main.py
+```
+pyinstaller --onefile --noconsole --name=movie-tracker src/Main.py
+```
 The application (movie-tracker.app) will be in a newly created dist directory in the project. Double click the application to run it (it might take a second to launch). This app can be removed from the folder and put anywhere on your machine.
