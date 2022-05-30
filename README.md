@@ -1,2 +1,1 @@
-# movie-tracker
-https://imdbpy.readthedocs.io/en/latest/usage/quickstart.html#searching
+pyinstaller --onefile --noconsole App.py

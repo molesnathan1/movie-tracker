@@ -1,155 +1,61 @@
 from imdb import IMDb
-from sqlalchemy.sql.functions import user
 
 class Movies:
-    ia = None
+    imdb = None
 
-    def __init__(self):
-        self.ia = IMDb()
+    def __init__(self, db):
+        self.imdb = IMDb()
+        self.db = db
 
     #searches for and displays movies based userinput, returns results of search
-    def find(self):
-        userStr = input("\nsearch movie: ")
-        movies = []
+    def search(self, userStr):
 
-        if userStr == "":
-            return movies
-        else:
-            movies = self.ia.search_movie(userStr)
+        movies = self.imdb.search_movie(userStr)
 
-            for i in range(0,10):
-                print("%d. %s (%s)" % (i + 1, movies[i], movies[i]['year']))
+        return movies
 
-            return movies 
+    # adds a movie to the database
+    def addMovie(self, id, title, genre, year):
+        self.db.exe("INSERT IGNORE INTO Movies VALUES(%d, '%s', '%s', %d);" % (id, title, genre, year))
 
-    #user selects a movie from a search, returns selected movie
-    def selectMovie(self, movies):
-        userChoice = input("select a movie: ")
-        movie = None
-        if 1 <= int(userChoice) <= 10:
-            movie = movies[int(userChoice) - 1]
-        else:
-            print("NO MOVIE SELECTED: exiting")
-        return movie
+    # adds a usermovie to the database
+    def addUserMovie(self, username, id, rating):
+        self.db.exe("INSERT IGNORE INTO UsersMovies VALUES('%s', %d, %d, curdate());" % (username, id, rating))
 
-    #searches for a movie and selects the first option in the query, return the movie
-    def quickFind(self):
-        userStr = input("\nquick search movie: ")
-        movies = []
+    def updateUserMovie(self, username, id, rating):
+        self.db.exe("UPDATE UsersMovies SET rating = %d WHERE username = '%s' and movieID = %d;" % (rating, username, id))
 
-        if userStr == "":
-            return movies
-        else:
-            movies = self.ia.search_movie(userStr)
-            return movies[0]
+    # deletes a usermovie from the database 
+    def removeUserMovie(self, username, id):
+        self.db.exe("DELETE FROM UsersMovies WHERE (username, movieID) = ('%s', %d);" % (username, id))
 
-    #gets and returns a list of the wanted info of a movie
-    def getInfo(self, movie):  
-        self.ia.update(movie)
-        info = []
-        info.append(movie.movieID)
-        info.append(movie['title'])
-        info.append(movie['genre'])
-        return info
-        
-    #performs a search and allows user to select a movie, gets info on the movie
-    def search(self):
-        info = []
-        movies = self.find()
-        if movies: 
-            movie = self.selectMovie(movies)
-            if movie:
-                info = self.getInfo(movie)
-                return info
+    # adds a new user and usermovie to the database
+    def newUserMovie(self, username, id, title, genre, year, rating):
+        self.addMovie(id, title, genre, year)
+        self.addUserMovie(username, id, rating)
 
-    #performs a quick search for a movie, gets the info of the movie
-    def quickSearch(self):
-        info = []
-        movie = self.quickFind()
-        if movie:
-            info = self.getInfo(movie)
-            return info
-
-    def addMovie(self, db, id, title, genre):
-        db.exe("INSERT INTO Movies VALUES(%d, '%s', '%s');" % (id, title, genre))
-
-    def addUserMovie(self, db, username, id, rating):
-        db.exe("INSERT INTO UsersMovies VALUES('%s', %d, %d);" % (username, id, rating))
-
-    def removeUserMovie(self, db, username, id, rating):
-        db.exe("DELETE FROM UsersMovies WHERE (username, movieID) = ('%s', %d);" % (username, id))
-
-    def newUserMovie(self, db, username):
-        info = self.search()
-        if info:
-            id = int(info[0])
-            title = info[1]
-            primaryGenre = info[2][0]
-
-            results = db.exe("SELECT * FROM Movies WHERE imdbID = '%s';" % (id))
-            if results:
-                id = results[0][0]
-                rating = self.getRating
-                self.addUserMovie(db, username, id, rating)
-            else:
-                self.addMovie(db, id, title, primaryGenre)
-                rating = self.getRating
-                self.addUserMovie(db, username, id, rating)
-
-    def getRating(self):
-        userStr = input("Movie Rating: ")
-        rating = int(userStr)
-        return rating
-
-    def newUserMovieQuick(self, db, username):
-        info = self.quickSearch()
-
-        if info:
-            id = int(info[0])
-            title = info[1]
-            primaryGenre = info[2][0]
-
-            results = db.exe("SELECT * FROM Movies WHERE imdbID = %d;" % (id))
-            if results:
-                id = results[0][0]
-                rating = self.getRating()
-                self.addUserMovie(db, username, id, rating)
-            else:
-                self.addMovie(db, id, title, primaryGenre)
-                rating = self.getRating()
-                self.addUserMovie(db, username, id, rating)
-
-    def viewUserMovie(self, db, username):
-        results = db.exe("""
+    # returns list of all information in a users watchlist [(id, title, genre1, genre2, year, rating)]
+    def getWatchlist(self, username):
+        results = self.db.exe("""
                 SELECT * 
                 FROM Movies 
                 WHERE imdbID IN (SELECT movieID 
                                     FROM UsersMovies 
                                     WHERE username = '%s');
             """ % (username))
-        ratings = db.exe("SELECT rating FROM UsersMovies WHERE username = '%s';" % (username))
-        
-        print("\nMY WATCHED MOVIES")
+        ratings = self.db.exe("SELECT rating FROM UsersMovies WHERE username = '%s';" % (username))
         i = 0
-        for m in results:
-            i += 1
-            rating = ratings[i - 1][0]
-            print("%d. %s (%d)" % (i, m[1], rating))
+        results = list(results)
+        ratings = list(ratings)
+        for i in range(len(results)):
+            results[i] = results[i] + ratings[i]
+
         return results
 
-    def selectRemoveMovie(self, db, username):
-        movies = self.viewUserMovie(db, username)
+    # updates a movie's information from imdb
+    def updateMovie(self, movie):
+        self.imdb.update(movie)
 
-        userStr = input("select movie to remove: ")
-        
-        if userStr == "":
-            print("EXITING")
-        else:
-            userNum = int(userStr) - 1
-            if userNum in range(0, len(movies)):
-                id = int(movies[userNum][0])
-                title = movies[userNum][1]
-                self.removeUserMovie(db, username, id)
-                print("REMOVED %s FROM WATCHED LIST" % (title))
+
         
 

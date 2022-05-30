@@ -4,11 +4,11 @@ class Database:
     db = None
     cur = None
 
-    #constructor that connects to the database and sets it up
+    #connects to the database ad
     def __init__(self):
         self.db = MySQLdb.connect(host="localhost",
-                     user="admin",
-                     passwd="angle_4L",
+                     user="root",
+                     passwd="4563",
                      db="MovieTracker")
 
         self.cur = self.db.cursor()
@@ -21,9 +21,36 @@ class Database:
     
     #creates all tables in the database
     def createTables(self):
-        sql_file = open("schema.sql", "r")
-        sql_string = sql_file.read()
-        sql_file.close()
+        # sql_file = open("schema.sql", "r")
+        # sql_string = sql_file.read()
+        # sql_file.close()
+        sql_string = """
+            CREATE TABLE IF NOT EXISTS Users(
+                username varchar(32),
+                password varchar (32),
+                firstname varchar(32),
+                lastname varchar(32),
+                PRIMARY KEY (username)
+            );
+
+            CREATE TABLE IF NOT EXISTS Movies(
+                imdbID int,
+                title varchar(32),
+                genre varchar(32),
+                yearMade int,
+                PRIMARY KEY (imdbID)
+            );
+
+            CREATE TABLE IF NOT EXISTS UsersMovies(
+                username varchar(32),
+                movieID int,
+                rating int,
+                dateAdded datetime,
+                FOREIGN KEY (username) REFERENCES Users(username),
+                FOREIGN KEY (movieID) REFERENCES Movies(imdbID),
+                PRIMARY KEY (username, movieID)
+            ); 
+        """
         self.cur.execute(sql_string)
 
     #drop all tables in the database
